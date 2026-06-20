@@ -28,7 +28,7 @@ export class DocumentService {
         return "Valid";
     }
 
-    async fileProcessing(file: Express.Multer.File) {
+    async fileProcessing(file: Express.Multer.File, userId: number) {
         const isValid = this.validateTypes(file);
 
         if (isValid === "InvalidSize")
@@ -53,6 +53,15 @@ export class DocumentService {
             file.buffer,
         );
 
-        return file;
+        const doc = await this.prisma.document.create({
+            data: {
+                fileName: name,
+                fileUrl: filePath,
+                status: "UPLOADED",
+                userId: userId
+            }
+        })
+
+        return doc;
     }
 }

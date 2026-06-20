@@ -1,8 +1,9 @@
-import { Body, Controller, HttpCode, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { DocumentService } from './document.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage, memoryStorage } from 'multer';
-import { extname } from 'path';
+import { memoryStorage } from 'multer';
+import { AuthGuard } from 'src/auth/auth.gaurd';
+import { request } from 'http';
 
 @Controller('document')
 export class DocumentController {
@@ -10,14 +11,16 @@ export class DocumentController {
 
   @Post('upload')
   @HttpCode(200)
+  @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('document', {
     storage: memoryStorage(),
   }))
   async DocumentUpload(
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
+    @Req() request: Request
   ) {
     console.log(file);
-    return this.documentService.fileProcessing(file);
+    return this.documentService.fileProcessing(file, request['user'].sub);
   }
 
 
