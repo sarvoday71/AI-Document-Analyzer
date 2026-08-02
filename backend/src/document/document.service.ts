@@ -2,11 +2,15 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { extname, join } from 'path';
 import * as fs from 'fs';
+import { DocumentQueueService } from 'src/document-processing/document-queue.service';
 
 @Injectable()
 export class DocumentService {
 
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly documentQueueService: DocumentQueueService
+    ) { }
 
     validateTypes(file: Express.Multer.File) {
         const allowedTypes = [
@@ -62,6 +66,10 @@ export class DocumentService {
             }
         })
 
+        // Here give the document info to queue.
+        if (doc) {
+            await this.documentQueueService.addDocumentToQueue(doc);
+        }
         return doc;
     }
-}
+} 

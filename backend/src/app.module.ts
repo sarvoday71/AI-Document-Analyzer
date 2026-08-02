@@ -6,11 +6,23 @@ import { UsersModule } from './users/users.module';
 import { PrismaService } from 'src/prisma.service';
 import { ConfigModule } from '@nestjs/config';
 import { DocumentModule } from './document/document.module';
+import { BullModule } from '@nestjs/bullmq';
+import { DocumentProcessingModule } from './document-processing/document-processing.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, ConfigModule.forRoot({
-    isGlobal: true,
-  }), DocumentModule,],
+  imports: [AuthModule, UsersModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    DocumentModule,
+    BullModule.forRoot({
+      connection: {
+        host: "localhost",
+        port: 6379
+      },
+
+    }),
+    DocumentProcessingModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
