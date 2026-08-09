@@ -32,6 +32,7 @@ export class DocumentService {
         return "Valid";
     }
 
+    // To process file uploaded by user
     async fileProcessing(file: Express.Multer.File, userId: number) {
         const isValid = this.validateTypes(file);
 

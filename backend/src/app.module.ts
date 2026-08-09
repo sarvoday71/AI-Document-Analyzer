@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DocumentModule } from './document/document.module';
 import { BullModule } from '@nestjs/bullmq';
 import { DocumentProcessingModule } from './document-processing/document-processing.module';
+import { GeminiModule } from './gemini/gemini.module';
 
 @Module({
   imports: [AuthModule, UsersModule,
@@ -22,7 +23,8 @@ import { DocumentProcessingModule } from './document-processing/document-process
       },
 
     }),
-    DocumentProcessingModule],
+    DocumentProcessingModule,
+    GeminiModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })

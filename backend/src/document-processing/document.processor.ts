@@ -6,10 +6,14 @@ import { extname } from "node:path";
 import { readFile } from "node:fs/promises";
 import { PDFParse } from 'pdf-parse';
 import mammoth from "mammoth";
+import { GeminiService } from "src/gemini/gemini.service";
 
 @Processor('document-processing')
 export class DocumentProcessor extends WorkerHost {
-    constructor(private readonly prisma: PrismaService) {
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly gemini: GeminiService
+    ) {
         super();
     }
 
@@ -43,37 +47,64 @@ export class DocumentProcessor extends WorkerHost {
     }
 
 
+
+    // Below is the process which picks up the jobs from queue and processes it one by one
     async process(job: Job<IDocumentQueuePayload>) {
-        if (job.name !== 'summarize-document') {
-            return;
-        }
         const jobToBeProcessed = job.data;
-        const document = await this.prisma.document.findUnique({
-            where: {
-                id: jobToBeProcessed.documentId
-            }
-        })
+        try {
 
-        if (!document) {
-            const status = "FAILED";
-            const errorMessage = "No document found with provided ID";
-            return;
+            const document = await this.prisma.document.findUnique({
+                where: {
+                    id: jobToBeProcessed.documentId
+                }
+            })
+
+            if (!document) {
+                throw new Error("Document with provided id does not exist")
+            }
+
+            await this.prisma.document.update({
+                where: {
+                    id: jobToBeProcessed.documentId
+                },
+                data: {
+                    status: 'PROCESSING'
+                }
+            })
+
+            // Now here perform the text extraction part from the pdf and store it inside the database
+            const fileUrl = document?.fileUrl
+            const rawText = await this.textExratction(fileUrl)
+
+            // Here we are summarizing the raw text
+            const summarizedText = rawText ? await this.gemini.summarizeText(rawText) : null;
+
+            const completDBwithSummary = await this.prisma.document.update({
+                where: {
+                    id: jobToBeProcessed.documentId
+                },
+                data: {
+                    summary: summarizedText,
+                    status: "COMPLETED",
+                    rawText
+                }
+            })
+            console.log(completDBwithSummary);
+
+
+        } catch (error) {
+            await this.prisma.document.update({
+                where: { id: jobToBeProcessed.documentId },
+                data: {
+                    status: 'FAILED',
+                    errorMessage:
+                        error instanceof Error ? error.message : 'Document processing failed',
+                },
+            });
+
+            throw error;
         }
 
-        // Now here perform the text extraction part from the pdf and store it inside the database
-        const fileUrl = document?.fileUrl
-        const rawText = await this.textExratction(fileUrl)
 
-        await this.prisma.document.update({
-            where: {
-                id: jobToBeProcessed.documentId,
-            },
-            data: {
-                status: 'PROCESSING',
-                rawText: rawText,
-            }
-        })
-
-        console.log(rawText);
     }
 }
