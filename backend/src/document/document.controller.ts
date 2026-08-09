@@ -3,7 +3,7 @@ import { DocumentService } from './document.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { AuthGuard } from 'src/auth/auth.gaurd';
-import { request } from 'http';
+
 
 @Controller('document')
 export class DocumentController {

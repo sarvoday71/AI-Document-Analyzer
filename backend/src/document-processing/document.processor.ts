@@ -93,15 +93,16 @@ export class DocumentProcessor extends WorkerHost {
 
 
         } catch (error) {
-            await this.prisma.document.update({
-                where: { id: jobToBeProcessed.documentId },
-                data: {
-                    status: 'FAILED',
-                    errorMessage:
-                        error instanceof Error ? error.message : 'Document processing failed',
-                },
-            });
-
+            if (job.attemptsMade + 1 >= (job.opts.attempts ?? 1)) {
+                await this.prisma.document.update({
+                    where: { id: jobToBeProcessed.documentId },
+                    data: {
+                        status: 'FAILED',
+                        errorMessage:
+                            error instanceof Error ? error.message : 'Document processing failed',
+                    },
+                });
+            }
             throw error;
         }
 

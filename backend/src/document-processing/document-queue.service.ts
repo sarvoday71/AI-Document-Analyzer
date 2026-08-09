@@ -16,7 +16,17 @@ export class DocumentQueueService {
         const job = await this.documentQueue.add("summarize-document", {
             documentId: doc.id,
             userId: doc.userId
-        })
+        },
+            {
+                attempts: 3,
+                backoff: {
+                    type: "exponential",
+                    delay: 5_000,
+                },
+                removeOnComplete: true,
+                removeOnFail: 100
+            }
+        )
 
     }
 }
