@@ -1,10 +1,11 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
 
 function Login() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,6 +22,7 @@ function Login() {
         password,
       });
       localStorage.setItem("access_token", response.data.access_token);
+      navigate("/document");
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const message = err.response?.data?.message;

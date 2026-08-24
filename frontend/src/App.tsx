@@ -1,6 +1,14 @@
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import DocumentUpload from "./pages/DocumentUpload";
+import type { ReactNode } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+
+function ProtectedRoute({ children }: { children: ReactNode }) {
+  const accessToken = localStorage.getItem("access_token");
+
+  return accessToken ? children : <Navigate replace to="/login" />;
+}
 
 function App() {
   return (
@@ -9,6 +17,14 @@ function App() {
         <Routes>
           <Route path="/signup" element={<Signup></Signup>}></Route>
           <Route path="/login" element={<Login />}></Route>
+          <Route
+            path="/document"
+            element={
+              <ProtectedRoute>
+                <DocumentUpload />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </>
