@@ -45,10 +45,11 @@ export class GeminiService {
     }
 
     private async generateSummary(text: string, isChunk: boolean): Promise<string> {
+        console.log("Summary generation started")
         const instruction = isChunk
             ? 'Summarize this section of a larger document. Preserve facts, names, numbers, and conclusions that matter for a final overall summary.'
             : 'Summarize the following document clearly. Include the main ideas and important conclusions. Do not invent information not present in the document.';
-
+        console.log("Before response")
         const response = await this.ai.models.generateContent({
             model: this.model,
             contents: `
@@ -61,10 +62,13 @@ ${text}
       `.trim(),
         });
 
-
+        
         if (!response.text) {
             throw new Error('Gemini returned an empty summary');
+            console.log("Error ____________________________")
         }
+
+        console.log(response.text);
 
         return response.text;
     }

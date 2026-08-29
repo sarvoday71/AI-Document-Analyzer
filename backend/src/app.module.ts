@@ -18,10 +18,11 @@ import { GeminiModule } from './gemini/gemini.module';
     DocumentModule,
     BullModule.forRoot({
       connection: {
-        host: "localhost",
-        port: 6379
+        host: process.env.UPSTASH_REDIS_HOST,
+        port: parseInt(process.env.UPSTASH_REDIS_PORT || '6379'),
+        password: process.env.UPSTASH_REDIS_PASSWORD,
+        tls: {}, 
       },
-
     }),
     DocumentProcessingModule,
     GeminiModule],

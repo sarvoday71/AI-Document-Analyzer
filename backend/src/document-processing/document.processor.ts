@@ -51,6 +51,7 @@ export class DocumentProcessor extends WorkerHost {
     // Below is the process which picks up the jobs from queue and processes it one by one
     async process(job: Job<IDocumentQueuePayload>) {
         const jobToBeProcessed = job.data;
+        console.log("Job picked to excecute");
         try {
 
             const document = await this.prisma.document.findUnique({
@@ -90,6 +91,7 @@ export class DocumentProcessor extends WorkerHost {
                 }
             })
             console.log(completDBwithSummary);
+            console.log("Summary generation completed")
 
 
         } catch (error) {

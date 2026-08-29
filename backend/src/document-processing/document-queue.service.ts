@@ -28,5 +28,7 @@ export class DocumentQueueService {
             }
         )
 
+        console.log("added document to queue");
+
     }
 }

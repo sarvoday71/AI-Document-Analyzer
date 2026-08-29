@@ -69,6 +69,7 @@ export class DocumentService {
 
         // Here give the document info to queue.
         if (doc) {
+            console.log("Call to queue");
             await this.documentQueueService.addDocumentToQueue(doc);
         }
         return doc;
