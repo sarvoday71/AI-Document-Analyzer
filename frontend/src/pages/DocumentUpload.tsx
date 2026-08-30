@@ -1,9 +1,11 @@
 import { useRef, useState } from "react";
 import axios from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
 function DocumentUpload() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState("");
@@ -61,6 +63,7 @@ function DocumentUpload() {
       await axios.post("http://localhost:3000/document/upload", formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      await queryClient.invalidateQueries({ queryKey: ["documents"] });
 
       setSuccess("Document uploaded. Analysis will begin shortly.");
       setFile(null);

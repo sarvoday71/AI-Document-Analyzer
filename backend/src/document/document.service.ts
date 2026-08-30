@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { extname, join } from 'path';
 import * as fs from 'fs';
@@ -73,5 +73,51 @@ export class DocumentService {
             await this.documentQueueService.addDocumentToQueue(doc);
         }
         return doc;
+    }
+
+
+
+
+    // To get all the documents uploaded by user
+    async getDocumentsByUserId(userId: number) {
+        return this.prisma.document.findMany({
+            where: { userId },
+            select: {
+                id: true,
+                fileName: true,
+                status: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+    }
+
+
+
+    // To get document with particular id
+    async getDocumentById(id: number, userId: number) {
+        const document = this.prisma.document.findFirst({
+            where: {
+                id,
+                userId,
+            },
+            select: {
+                id: true,
+                fileName: true,
+                status: true,
+                summary: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+        });
+
+        if (!document) {
+            throw new NotFoundException('Document not found');
+        }
+
+        return document;
     }
 } 

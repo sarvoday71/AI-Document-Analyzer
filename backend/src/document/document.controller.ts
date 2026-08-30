@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, Req, UploadedFile, UseGuards, UseInterceptors, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { DocumentService } from './document.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
@@ -21,6 +21,26 @@ export class DocumentController {
   ) {
     console.log(file);
     return this.documentService.fileProcessing(file, request['user'].sub);
+  }
+
+  @Get()
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  async getMyDocuments(@Req() request: Request) {
+    return this.documentService.getDocumentsByUserId(request['user'].sub);
+  }
+
+  @Get(":id")
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  async getDocumentById(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() request: Request,
+  ) {
+    return this.documentService.getDocumentById(
+      id,
+      request['user'].sub,
+    )
   }
 
 

@@ -1,6 +1,8 @@
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import DocumentUpload from "./pages/DocumentUpload";
+import Documents from "./pages/Documents";
+import DocumentDetail from "./pages/DocumentDetail";
 import type { ReactNode } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
@@ -21,7 +23,23 @@ function App() {
             path="/document"
             element={
               <ProtectedRoute>
+                <Documents />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/document/upload"
+            element={
+              <ProtectedRoute>
                 <DocumentUpload />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/document/:id"
+            element={
+              <ProtectedRoute>
+                <DocumentDetail />
               </ProtectedRoute>
             }
           />
